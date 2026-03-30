@@ -47,12 +47,9 @@
     .btn-ghost:hover{color:var(--text);border-color:var(--accent);opacity:1;}
     .btn-green{background:var(--green);color:#fff;}
     .btn-sm{padding:4px 12px;font-size:.8rem;}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
 
-    .banner{margin:16px 24px 0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-    .banner-text{font-size:13px;color:var(--text2);}
-    .banner-text b{color:var(--text);}
-
-    .tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border);background:var(--bg);margin-top:12px;}
+    .tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border);background:var(--bg);}
     .tab{padding:10px 14px;font-size:13px;color:var(--muted);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;font-family:var(--font);}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500;}
     .tab:hover:not(.active){color:var(--text);}
@@ -138,7 +135,7 @@
       CLIENT_ID: '1036340686197-cbsamma1t9fcvjt1jcg9271qo85noqjr.apps.googleusercontent.com',
       SPREADSHEET_ID: '1fB4YWM4a5u56CXJw56fd5oxyl0Tu-7suyHs-sC4fEGs',
       SHEET_NAME: 'AI Overhaul (1-2 Apr)',
-      ALLOWED_DOMAINS: ['shopee.com'],
+      ALLOWED_DOMAINS: [],
       COL: {
         SN:0, DOMAIN:1, BAU:2, IDEA:3, PROBLEM:4,
         RC:5, TODO:6, PLATFORM:7, HOURS:8,
@@ -158,7 +155,7 @@
     };
 
     const RANKS = ['🥇','🥈','🥉','4','5'];
-    const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
+    const SCOPE = 'openid email profile https://www.googleapis.com/auth/spreadsheets';
 
     let state = {
       user: null,
@@ -167,13 +164,13 @@
       loading: false,
       tab: 'board',
       filter: { search:'', domain:'', platform:'' },
-      firstConsentDone: false,
     };
 
     const groupState = {};
     let addRowVisible = false;
     let tokenClient = null;
-    let gisInitialized = false;
+    let authReady = false;
+    let pendingAction = false;
 
     function toast(msg, type='success') {
       const el = document.createElement('div');
@@ -197,16 +194,12 @@
       return out;
     }
 
-    function parseJwt(token) {
-      return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
-    }
-
     function escapeHtml(value) {
       return String(value ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/\"/g, '&quot;')
+        .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
     }
 
@@ -216,7 +209,6 @@
 
     function render() {
       document.getElementById('app').innerHTML = state.user ? renderApp() : renderLogin();
-      if (!state.user) tryInitAuth();
     }
 
     function renderLogin() {
@@ -227,14 +219,13 @@
             <div class="login-title">AI <span>Sprint</span></div>
             <div class="login-sub">
               BI Team · Ideas Board<br>
-              Step 1: sign in with Google<br>
-              Step 2: connect Google Sheets
+              Sign in with your Google account to continue.
             </div>
-            <div id="google-signin-btn"></div>
+            <button class="btn btn-primary" onclick="startLogin()">Sign in with Google</button>
             <div class="login-note">
-              GitHub Pages setup:<br>
-              Authorized JavaScript origin should be <b>https://lianasaat.github.io</b><br>
-              Redirect URI can be left empty for this version.
+              For GitHub Pages:<br>
+              Authorized JavaScript origin: <b>https://lianasaat.github.io</b><br>
+              Redirect URI: leave blank
             </div>
           </div>
         </div>`;
@@ -262,21 +253,10 @@
             <div class="live-pill"><div class="live-dot"></div> Live</div>
             <span style="font-size:12px;color:var(--muted);">${escapeHtml(u.email)}</span>
             ${avatar}
-            ${state.accessToken
-              ? `<button class="btn btn-green btn-sm" onclick="refreshFromSheet()">Refresh</button>`
-              : `<button class="btn btn-primary btn-sm" onclick="connectSheets()">Connect Google Sheets</button>`}
+            <button class="btn btn-green btn-sm" onclick="refreshFromSheet()">Refresh</button>
             <button class="btn btn-ghost btn-sm" onclick="signOut()">Sign Out</button>
           </div>
         </div>
-
-        ${!state.accessToken ? `
-          <div class="banner">
-            <div class="banner-text">
-              <b>Signed in successfully.</b> One more step: click <b>Connect Google Sheets</b> to allow this page to read and update your sheet.
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="connectSheets()">Connect Google Sheets</button>
-          </div>
-        ` : ''}
 
         <div class="tabs">
           <button class="tab ${state.tab === 'board' ? 'active' : ''}" onclick="switchTab('board')">💡 Ideas Board</button>
@@ -297,13 +277,13 @@
               <option value="">All Platforms</option>
               ${platforms.map(p => `<option value="${escapeHtml(p)}" ${state.filter.platform===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
             </select>
-            <button class="btn btn-primary" onclick="toggleAddRow()" ${!state.accessToken ? 'disabled style="opacity:.5;cursor:not-allowed;"' : ''}>+ Add Idea</button>
+            <button class="btn btn-primary" onclick="toggleAddRow()">+ Add Idea</button>
           </div>
-          ${state.loading ? '<div class="spinner"></div>' : (state.accessToken ? renderTable() : '<div style="padding:28px 24px;color:var(--muted);">Connect Google Sheets to load the board.</div>')}
+          ${state.loading ? '<div class="spinner"></div>' : renderTable()}
         </div>
 
         <div id="admin-view" style="display:${state.tab === 'admin' ? 'block' : 'none'}">
-          ${state.loading ? '<div class="spinner"></div>' : (state.accessToken ? renderAdmin() : '<div style="padding:28px 24px;color:var(--muted);">Connect Google Sheets to view the summary.</div>')}
+          ${state.loading ? '<div class="spinner"></div>' : renderAdmin()}
         </div>`;
     }
 
@@ -363,11 +343,11 @@
               ${idea.tester.map(e => e===state.user.email
                 ? `<span class="chip chip-me" onclick="unvolunteer(${ri},'tester')">You (Test)</span>`
                 : `<span class="chip">${escapeHtml(e.split('@')[0])} (Test)</span>`).join('')}
-              ${!amDev ? `<button class="vol-btn" onclick="volunteer(${ri},'dev')">+ Dev</button>` : ''}
-              ${!amTest ? `<button class="vol-btn" onclick="volunteer(${ri},'tester')">+ Test</button>` : ''}
+              ${!amDev ? `<button class="vol-btn" onclick="volunteer(${ri},'dev')" ${pendingAction ? 'disabled' : ''}>+ Dev</button>` : ''}
+              ${!amTest ? `<button class="vol-btn" onclick="volunteer(${ri},'tester')" ${pendingAction ? 'disabled' : ''}>+ Test</button>` : ''}
             </div>${amDev || amTest ? `<div class="chip-hint">Click your name to remove</div>` : ''}</td>
             <td style="text-align:center;">
-              <button class="vote-btn ${voted ? 'voted' : ''}" onclick="toggleVote(${ri})">👍 ${idea.votes.length}</button>
+              <button class="vote-btn ${voted ? 'voted' : ''}" onclick="toggleVote(${ri})" ${pendingAction ? 'disabled' : ''}>👍 ${idea.votes.length}</button>
             </td>
           </tr>`;
         });
@@ -466,26 +446,16 @@
         </div>`;
     }
 
-    function initGoogleAuth() {
-      if (!window.google?.accounts) {
-        setTimeout(initGoogleAuth, 200);
+    function initAuth() {
+      if (!window.google?.accounts?.oauth2) {
+        setTimeout(initAuth, 200);
         return;
       }
-
-      if (gisInitialized) return;
-      gisInitialized = true;
 
       if (!CONFIG.CLIENT_ID || CONFIG.CLIENT_ID.includes('YOUR_CLIENT_ID')) {
         toast('Replace CONFIG.CLIENT_ID with your real Google OAuth Web Client ID.', 'error');
         return;
       }
-
-      google.accounts.id.initialize({
-        client_id: CONFIG.CLIENT_ID,
-        callback: handleIdToken,
-        auto_select: false,
-        cancel_on_tap_outside: false,
-      });
 
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CONFIG.CLIENT_ID,
@@ -499,74 +469,70 @@
         }
       });
 
-      renderGoogleButton();
+      authReady = true;
     }
 
-    function renderGoogleButton() {
-      const mount = document.getElementById('google-signin-btn');
-      if (!mount || !window.google?.accounts?.id) return;
-      mount.innerHTML = '';
-      google.accounts.id.renderButton(mount, {
-        theme: 'outline',
-        size: 'large',
-        shape: 'pill',
-        text: 'signin_with',
-        width: 260,
-      });
-    }
-
-    function handleIdToken(response) {
-      try {
-        const payload = parseJwt(response.credential);
-
-        if (CONFIG.ALLOWED_DOMAINS.length && !CONFIG.ALLOWED_DOMAINS.includes(payload.hd)) {
-          toast('Access restricted to ' + CONFIG.ALLOWED_DOMAINS.join(', '), 'error');
-          return;
-        }
-
-        state.user = {
-          name: payload.name || '',
-          email: payload.email || '',
-          picture: payload.picture || '',
-        };
-        state.loading = false;
-        render();
-      } catch (err) {
-        state.loading = false;
-        render();
-        toast('Failed to process Google sign-in.', 'error');
-        console.error(err);
-      }
-    }
-
-    function connectSheets() {
-      if (!tokenClient) {
-        toast('Google auth is not initialized yet.', 'error');
+    async function startLogin() {
+      if (!authReady || !tokenClient) {
+        toast('Google auth is still loading. Try again.', 'error');
         return;
       }
+
       state.loading = true;
       render();
-      tokenClient.requestAccessToken({ prompt: state.firstConsentDone ? '' : 'consent' });
-      state.firstConsentDone = true;
+
+      tokenClient.requestAccessToken({ prompt: 'consent' });
     }
 
-    function onTokenResponse(resp) {
+    async function fetchUserProfile(accessToken) {
+      const resp = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+        headers: { Authorization: 'Bearer ' + accessToken }
+      });
+
+      if (!resp.ok) {
+        throw new Error('Failed to load user profile');
+      }
+
+      return await resp.json();
+    }
+
+    async function onTokenResponse(resp) {
       if (resp.error) {
         state.loading = false;
         render();
         toast('Sheets access denied: ' + resp.error, 'error');
         return;
       }
-      state.accessToken = resp.access_token;
-      loadData();
+
+      try {
+        state.accessToken = resp.access_token;
+        const profile = await fetchUserProfile(resp.access_token);
+
+        if (CONFIG.ALLOWED_DOMAINS.length) {
+          const emailDomain = (profile.email || '').split('@')[1] || '';
+          if (!CONFIG.ALLOWED_DOMAINS.includes(emailDomain)) {
+            throw new Error('Access restricted to ' + CONFIG.ALLOWED_DOMAINS.join(', '));
+          }
+        }
+
+        state.user = {
+          name: profile.name || '',
+          email: profile.email || '',
+          picture: profile.picture || '',
+        };
+
+        await loadData();
+      } catch (e) {
+        console.error(e);
+        state.loading = false;
+        render();
+        toast(e.message || 'Login failed.', 'error');
+      }
     }
 
     function signOut() {
       if (state.accessToken && window.google?.accounts?.oauth2) {
         google.accounts.oauth2.revoke(state.accessToken, () => {});
-      }
-      if (window.google?.accounts?.id) {
-        google.accounts.id.disableAutoSelect();
       }
       state.user = null;
       state.accessToken = null;
@@ -578,7 +544,7 @@
 
     function refreshFromSheet() {
       if (!state.accessToken) {
-        toast('Connect Google Sheets first.', 'error');
+        toast('Sign in first.', 'error');
         return;
       }
       loadData();
@@ -669,49 +635,84 @@
     }
 
     async function toggleVote(ri) {
+      if (pendingAction) return;
+      pendingAction = true;
+
       const idea = state.ideas[ri];
       const email = state.user.email;
+      const prevVotes = [...idea.votes];
       const votes = [...idea.votes];
       const idx = votes.indexOf(email);
       if (idx >= 0) votes.splice(idx, 1); else votes.push(email);
+
+      idea.votes = votes;
+      render();
+
       try {
         await sheetsUpdateCell(idea.rowIndex, CONFIG.COL.VOTES, votes.join(', '));
-        idea.votes = votes;
-        render();
       } catch (e) {
+        idea.votes = prevVotes;
+        render();
         toast('Error saving vote: ' + e.message, 'error');
+      } finally {
+        pendingAction = false;
+        render();
       }
     }
 
     async function volunteer(ri, role) {
+      if (pendingAction) return;
+      pendingAction = true;
+
       const idea = state.ideas[ri];
       const email = state.user.email;
       const col = role === 'dev' ? CONFIG.COL.DEV : CONFIG.COL.TESTER;
-      const list = [...(role === 'dev' ? idea.dev : idea.tester)];
-      if (list.includes(email)) return;
-      list.push(email);
+      const current = role === 'dev' ? idea.dev : idea.tester;
+      const prev = [...current];
+      if (current.includes(email)) {
+        pendingAction = false;
+        return;
+      }
+
+      const next = [...current, email];
+      if (role === 'dev') idea.dev = next; else idea.tester = next;
+      render();
+
       try {
-        await sheetsUpdateCell(idea.rowIndex, col, list.join(', '));
-        if (role === 'dev') idea.dev = list; else idea.tester = list;
-        toast(`Signed up as ${role}!`);
-        render();
+        await sheetsUpdateCell(idea.rowIndex, col, next.join(', '));
       } catch (e) {
+        if (role === 'dev') idea.dev = prev; else idea.tester = prev;
+        render();
         toast('Error: ' + e.message, 'error');
+      } finally {
+        pendingAction = false;
+        render();
       }
     }
 
     async function unvolunteer(ri, role) {
+      if (pendingAction) return;
+      pendingAction = true;
+
       const idea = state.ideas[ri];
       const email = state.user.email;
       const col = role === 'dev' ? CONFIG.COL.DEV : CONFIG.COL.TESTER;
-      const list = (role === 'dev' ? idea.dev : idea.tester).filter(e => e !== email);
+      const current = role === 'dev' ? idea.dev : idea.tester;
+      const prev = [...current];
+      const next = current.filter(e => e !== email);
+
+      if (role === 'dev') idea.dev = next; else idea.tester = next;
+      render();
+
       try {
-        await sheetsUpdateCell(idea.rowIndex, col, list.join(', '));
-        if (role === 'dev') idea.dev = list; else idea.tester = list;
-        toast(`Removed from ${role}.`);
-        render();
+        await sheetsUpdateCell(idea.rowIndex, col, next.join(', '));
       } catch (e) {
+        if (role === 'dev') idea.dev = prev; else idea.tester = prev;
+        render();
         toast('Error: ' + e.message, 'error');
+      } finally {
+        pendingAction = false;
+        render();
       }
     }
 
@@ -745,14 +746,10 @@
     function switchTab(tab) { state.tab = tab; render(); }
     function updateFilter(key, val) { state.filter[key] = val; render(); }
     function toggleGroup(rc) { groupState[rc] = !groupState[rc]; render(); }
-    function toggleAddRow() { if (state.accessToken) { addRowVisible = !addRowVisible; render(); } }
-
-    function tryInitAuth() {
-      if (window.google?.accounts) initGoogleAuth();
-      else setTimeout(tryInitAuth, 200);
-    }
+    function toggleAddRow() { addRowVisible = !addRowVisible; render(); }
 
     render();
+    initAuth();
   </script>
 </body>
 </html>
