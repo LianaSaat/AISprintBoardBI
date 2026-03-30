@@ -6,11 +6,9 @@
 <title>AI Sprint · Ideas Board</title>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
 <style>
-/* ── TOKENS ── */
 :root {
   --bg:           #F0F4FF;
   --surface:      #FFFFFF;
@@ -26,193 +24,137 @@
   --text2:        #4A5290;
   --group-bg:     #EDF0FF;
   --row-hover:    #F5F7FF;
-  --radius:       12px;
   --font:         'DM Sans', sans-serif;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; min-height: 100vh; }
 
-body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 15px;
-  line-height: 1.6;
-  min-height: 100vh;
-}
+#login-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; gap:20px; padding:40px 20px; }
+.login-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:40px 48px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; max-width:380px; width:100%; box-shadow:0 4px 32px rgba(124,143,240,.1); }
+.login-title { font-size:1.5rem; font-weight:500; }
+.login-title span { color:var(--accent); }
+.login-sub { font-size:.9rem; color:var(--muted); line-height:1.6; }
 
-/* ── LOGIN ── */
-#login-screen {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 100vh; gap: 20px; padding: 40px 20px;
-}
-.login-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 20px; padding: 40px 48px;
-  text-align: center; display: flex; flex-direction: column;
-  align-items: center; gap: 16px; max-width: 380px; width: 100%;
-  box-shadow: 0 4px 32px rgba(124,143,240,.1);
-}
-.login-icon { font-size: 2.2rem; }
-.login-title { font-size: 1.5rem; font-weight: 500; }
-.login-title span { color: var(--accent); }
-.login-sub { font-size: .9rem; color: var(--muted); }
+#setup-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:40px 20px; }
+.setup-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px 40px; max-width:520px; width:100%; box-shadow:0 4px 32px rgba(124,143,240,.1); }
+.setup-card h2 { font-size:1.3rem; font-weight:500; margin-bottom:6px; }
+.setup-card > p { color:var(--muted); font-size:.9rem; margin-bottom:24px; }
+.step-list { display:flex; flex-direction:column; gap:18px; }
+.step { display:flex; gap:14px; }
+.step-num { width:26px; height:26px; border-radius:50%; flex-shrink:0; background:var(--accent-light); border:1px solid var(--accent); color:var(--accent-text); font-size:.8rem; font-weight:500; display:flex; align-items:center; justify-content:center; }
+.step-body { font-size:.875rem; }
+.step-body strong { color:var(--text); }
+.step-body p { color:var(--muted); font-size:.82rem; margin-top:3px; }
+.step-body code { font-family:monospace; background:var(--accent-light); border-radius:4px; padding:1px 5px; font-size:.82rem; color:var(--accent-text); }
 
-/* ── SETUP ── */
-#setup-screen {
-  display: flex; align-items: center; justify-content: center;
-  min-height: 100vh; padding: 40px 20px;
-}
-.setup-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 20px; padding: 36px 40px; max-width: 520px; width: 100%;
-  box-shadow: 0 4px 32px rgba(124,143,240,.1);
-}
-.setup-card h2 { font-size: 1.3rem; font-weight: 500; margin-bottom: 6px; }
-.setup-card > p { color: var(--muted); font-size: .9rem; margin-bottom: 24px; }
-.step-list { display: flex; flex-direction: column; gap: 18px; margin-bottom: 24px; }
-.step { display: flex; gap: 14px; }
-.step-num {
-  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-  background: var(--accent-light); border: 1px solid var(--accent);
-  color: var(--accent-text); font-size: .8rem; font-weight: 500;
-  display: flex; align-items: center; justify-content: center;
-}
-.step-body { font-size: .875rem; }
-.step-body strong { color: var(--text); }
-.step-body p { color: var(--muted); font-size: .82rem; margin-top: 3px; }
-.step-body code { font-family: monospace; background: var(--accent-light); border-radius: 4px; padding: 1px 5px; font-size: .82rem; color: var(--accent-text); }
-
-/* ── TOPBAR ── */
-#topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 13px 24px; background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100;
-  backdrop-filter: blur(8px);
-}
-.logo-row { display: flex; align-items: center; gap: 10px; }
-.logo-icon { width: 32px; height: 32px; border-radius: 10px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 16px; }
-.logo-text { font-size: 15px; font-weight: 500; }
-.logo-text span { color: var(--accent); }
-.logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.topbar-right { display: flex; align-items: center; gap: 9px; }
-.live-pill { display: flex; align-items: center; gap: 5px; background: var(--green-light); border-radius: 20px; padding: 3px 10px; font-size: 11px; color: var(--green-text); font-weight: 500; }
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+#topbar { display:flex; align-items:center; justify-content:space-between; padding:13px 24px; background:var(--bg); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+.logo-row { display:flex; align-items:center; gap:10px; }
+.logo-icon { width:32px; height:32px; border-radius:10px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:16px; }
+.logo-text { font-size:15px; font-weight:500; }
+.logo-text span { color:var(--accent); }
+.logo-sub { font-size:11px; color:var(--muted); margin-top:1px; }
+.topbar-right { display:flex; align-items:center; gap:9px; }
+.live-pill { display:flex; align-items:center; gap:5px; background:var(--green-light); border-radius:20px; padding:3px 10px; font-size:11px; color:var(--green-text); font-weight:500; }
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-.avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
-.avatar-placeholder { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
-.user-email { font-size: 12px; color: var(--muted); }
+.avatar { width:28px; height:28px; border-radius:50%; object-fit:cover; border:2px solid var(--border); }
+.avatar-placeholder { width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:500; display:flex; align-items:center; justify-content:center; }
 
-/* ── BUTTONS ── */
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 20px; font-family: var(--font); font-size: .875rem; font-weight: 500; cursor: pointer; border: none; transition: opacity .15s, transform .1s; }
-.btn:hover { opacity: .85; transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-.btn-ghost:hover { color: var(--text); border-color: var(--accent); opacity: 1; }
-.btn-sm { padding: 4px 12px; font-size: .8rem; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border-radius:20px; font-family:var(--font); font-size:.875rem; font-weight:500; cursor:pointer; border:none; transition:opacity .15s, transform .1s; }
+.btn:hover { opacity:.85; transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+.btn-ghost:hover { color:var(--text); border-color:var(--accent); opacity:1; }
+.btn-sm { padding:4px 12px; font-size:.8rem; }
 
-/* ── TABS ── */
-.tabs { display: flex; padding: 0 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
-.tab { padding: 10px 14px; font-size: 13px; color: var(--muted); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; font-family: var(--font); }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
-.tab:hover:not(.active) { color: var(--text); }
+.tabs { display:flex; padding:0 24px; border-bottom:1px solid var(--border); background:var(--bg); }
+.tab { padding:10px 14px; font-size:13px; color:var(--muted); border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; font-family:var(--font); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:500; }
+.tab:hover:not(.active) { color:var(--text); }
 
-/* ── TOOLBAR ── */
-.toolbar { display: flex; gap: 8px; padding: 13px 24px; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg); flex-wrap: wrap; }
-.search-wrap { flex: 1; min-width: 180px; display: flex; align-items: center; gap: 7px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; }
-.search-wrap input { border: none; background: transparent; font-size: 13px; color: var(--text); outline: none; width: 100%; font-family: var(--font); }
-.search-wrap input::placeholder { color: var(--muted); }
-.filter-select { border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 12px; background: var(--surface); color: var(--text2); cursor: pointer; outline: none; font-family: var(--font); }
+.toolbar { display:flex; gap:8px; padding:13px 24px; align-items:center; border-bottom:1px solid var(--border); background:var(--bg); flex-wrap:wrap; }
+.search-wrap { flex:1; min-width:180px; display:flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:6px 14px; }
+.search-wrap input { border:none; background:transparent; font-size:13px; color:var(--text); outline:none; width:100%; font-family:var(--font); }
+.search-wrap input::placeholder { color:var(--muted); }
+.filter-select { border:1px solid var(--border); border-radius:20px; padding:6px 12px; font-size:12px; background:var(--surface); color:var(--text2); cursor:pointer; outline:none; font-family:var(--font); }
 
-/* ── TABLE ── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead tr { background: var(--bg); }
-th { padding: 9px 14px; text-align: left; font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .04em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead tr { background:var(--bg); }
+th { padding:9px 14px; text-align:left; font-size:11px; font-weight:500; color:var(--muted); letter-spacing:.04em; border-bottom:1px solid var(--border); white-space:nowrap; }
 
-/* ── GROUP ROWS ── */
-.group-header td { padding: 0; border-bottom: none; }
-.group-inner { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--group-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
-.group-inner:hover { background: #E5E9FF; }
-.chevron { font-size: 10px; color: var(--muted); display: inline-block; transition: transform .2s; width: 12px; }
-.chevron.open { transform: rotate(90deg); }
-.rc-badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--accent-light); color: var(--accent-text); font-weight: 500; border: 1px solid var(--border); white-space: nowrap; }
-.group-label { font-size: 13px; font-weight: 500; color: var(--text); }
-.group-meta { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-.group-count { font-size: 11px; color: var(--muted); }
-.group-hrs { font-size: 11px; color: var(--green); font-weight: 500; }
+.group-header td { padding:0; border-bottom:none; }
+.group-inner { display:flex; align-items:center; gap:10px; padding:9px 14px; background:var(--group-bg); border-top:1px solid var(--border); border-bottom:1px solid var(--border); cursor:pointer; user-select:none; }
+.group-inner:hover { background:#E5E9FF; }
+.chevron { font-size:10px; color:var(--muted); display:inline-block; transition:transform .2s; width:12px; }
+.chevron.open { transform:rotate(90deg); }
+.rc-badge { font-size:11px; padding:3px 9px; border-radius:20px; background:var(--accent-light); color:var(--accent-text); font-weight:500; border:1px solid var(--border); white-space:nowrap; }
+.group-label { font-size:13px; font-weight:500; color:var(--text); }
+.group-meta { margin-left:auto; display:flex; align-items:center; gap:12px; }
+.group-count { font-size:11px; color:var(--muted); }
+.group-hrs { font-size:11px; color:var(--green); font-weight:500; }
 
-/* ── DATA ROWS ── */
-td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; background: var(--surface); }
-tr.drow:hover td { background: var(--row-hover); }
-tr.drow.hidden { display: none; }
+td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:top; background:var(--surface); }
+tr.drow:hover td { background:var(--row-hover); }
+tr.drow.hidden { display:none; }
 
-/* ── TAGS ── */
-.pill { font-size: 11px; padding: 3px 9px; border-radius: 20px; display: inline-block; white-space: nowrap; font-weight: 500; border: 1px solid var(--border); }
-.pill-domain { background: var(--accent-light); color: var(--accent-text); }
-.pill-platform { background: var(--green-light); color: var(--green-text); }
+.pill { font-size:11px; padding:3px 9px; border-radius:20px; display:inline-block; white-space:nowrap; font-weight:500; border:1px solid var(--border); }
+.pill-domain { background:var(--accent-light); color:var(--accent-text); }
+.pill-platform { background:var(--green-light); color:var(--green-text); }
+.idea-text { font-size:13px; line-height:1.45; color:var(--text); }
+.prob-text { font-size:12px; color:var(--muted); line-height:1.4; }
+.hrs-val { font-size:12px; font-weight:500; color:var(--green); }
+.by-text { font-size:12px; color:var(--muted); white-space:nowrap; }
 
-.idea-text { font-size: 13px; line-height: 1.45; color: var(--text); }
-.prob-text { font-size: 12px; color: var(--muted); line-height: 1.4; }
-.hrs-val { font-size: 12px; font-weight: 500; color: var(--green); }
-.by-text { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.chips { display:flex; flex-wrap:wrap; gap:4px; }
+.chip { font-size:11px; border-radius:20px; padding:2px 8px; white-space:nowrap; background:var(--bg); border:1px solid var(--border); color:var(--muted); }
+.chip-me { background:var(--accent-light); border-color:var(--accent); color:var(--accent-text); cursor:pointer; }
+.chip-me:hover { background:#E0E4FF; }
+.chip-me::after { content:' ×'; opacity:.6; }
+.vol-btn { font-size:11px; border-radius:20px; padding:2px 8px; border:1px dashed var(--border); background:transparent; color:var(--muted); cursor:pointer; font-family:var(--font); }
+.vol-btn:hover { border-color:var(--green); color:var(--green-text); background:var(--green-light); }
+.chip-hint { font-size:10px; color:var(--muted); margin-top:3px; }
 
-/* ── CHIPS ── */
-.chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.chip { font-size: 11px; border-radius: 20px; padding: 2px 8px; white-space: nowrap; background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
-.chip-me { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); cursor: pointer; }
-.chip-me:hover { background: #E0E4FF; }
-.chip-me::after { content: ' ×'; opacity: .6; }
-.vol-btn { font-size: 11px; border-radius: 20px; padding: 2px 8px; border: 1px dashed var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: var(--font); }
-.vol-btn:hover { border-color: var(--green); color: var(--green-text); background: var(--green-light); }
-.chip-hint { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.vote-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 11px; border-radius:20px; border:1px solid var(--border); background:transparent; font-size:12px; color:var(--muted); cursor:pointer; font-family:var(--font); }
+.vote-btn.voted { background:var(--accent-light); color:var(--accent-text); border-color:var(--accent); font-weight:500; }
 
-/* ── VOTE ── */
-.vote-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; border-radius: 20px; border: 1px solid var(--border); background: transparent; font-size: 12px; color: var(--muted); cursor: pointer; font-family: var(--font); }
-.vote-btn.voted { background: var(--accent-light); color: var(--accent-text); border-color: var(--accent); font-weight: 500; }
+.add-row td { background:#F0F4FF; padding:9px 14px; border-bottom:1px solid var(--border); }
+.ai-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:5px 8px; font-size:12px; background:var(--surface); color:var(--text); font-family:var(--font); outline:none; }
+.ai-input:focus { border-color:var(--accent); }
+.ai-input.err { border-color:#E05A5A; }
+textarea.ai-input { resize:vertical; min-height:50px; }
 
-/* ── ADD ROW ── */
-.add-row td { background: #F0F4FF; padding: 9px 14px; border-bottom: 1px solid var(--border); }
-.ai-input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 12px; background: var(--surface); color: var(--text); font-family: var(--font); outline: none; }
-.ai-input:focus { border-color: var(--accent); }
-.ai-input.err { border-color: #E05A5A; }
-textarea.ai-input { resize: vertical; min-height: 50px; }
+#admin-view { padding:18px 24px; background:var(--bg); }
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:22px; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+.stat-val { font-size:24px; font-weight:500; }
+.stat-lbl { font-size:11px; color:var(--muted); margin-top:3px; }
+.sec-title { font-size:11px; font-weight:500; color:var(--muted); letter-spacing:.05em; margin-bottom:10px; text-transform:uppercase; }
+.bar-list { display:flex; flex-direction:column; gap:8px; margin-bottom:22px; }
+.bar-row { display:flex; align-items:center; gap:9px; }
+.bar-lbl { font-size:12px; color:var(--text2); width:110px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.bar-track { flex:1; background:var(--bg); border-radius:20px; height:7px; border:1px solid var(--border); }
+.bar-fill { height:100%; border-radius:20px; background:var(--accent); }
+.bar-val { font-size:12px; color:var(--muted); width:18px; text-align:right; }
+.top-list { display:flex; flex-direction:column; gap:8px; }
+.top-item { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:11px 15px; display:flex; align-items:center; gap:12px; }
+.top-rank { font-size:17px; width:24px; text-align:center; }
+.top-votes { font-size:13px; font-weight:500; color:var(--accent); white-space:nowrap; }
 
-/* ── ADMIN ── */
-#admin-view { padding: 18px 24px; display: none; background: var(--bg); }
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 22px; }
-.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
-.stat-val { font-size: 24px; font-weight: 500; }
-.stat-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.sec-title { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .05em; margin-bottom: 10px; text-transform: uppercase; }
-.bar-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
-.bar-row { display: flex; align-items: center; gap: 9px; }
-.bar-lbl { font-size: 12px; color: var(--text2); width: 110px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bar-track { flex: 1; background: var(--bg); border-radius: 20px; height: 7px; border: 1px solid var(--border); }
-.bar-fill { height: 100%; border-radius: 20px; background: var(--accent); }
-.bar-val { font-size: 12px; color: var(--muted); width: 18px; text-align: right; }
-.top-list { display: flex; flex-direction: column; gap: 8px; }
-.top-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 15px; display: flex; align-items: center; gap: 12px; }
-.top-rank { font-size: 17px; width: 24px; text-align: center; }
-.top-votes { font-size: 13px; font-weight: 500; color: var(--accent); white-space: nowrap; }
-
-/* ── TOAST ── */
-#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
-.toast { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; font-size: .875rem; box-shadow: 0 4px 20px rgba(124,143,240,.15); display: flex; align-items: center; gap: 8px; animation: toastIn .25s ease; }
+#toast-container { position:fixed; bottom:24px; right:24px; z-index:999; display:flex; flex-direction:column; gap:8px; }
+.toast { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:11px 16px; font-size:.875rem; box-shadow:0 4px 20px rgba(124,143,240,.15); display:flex; align-items:center; gap:8px; animation:toastIn .25s ease; }
 @keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
-.toast.success { border-color: var(--green); color: var(--green-text); }
-.toast.error { border-color: #E05A5A; color: #9B3030; }
+.toast.success { border-color:var(--green); color:var(--green-text); }
+.toast.error { border-color:#E05A5A; color:#9B3030; }
 
-/* ── SPINNER ── */
-.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 60px auto; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin:60px auto; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-@media (max-width: 640px) {
-  #topbar, .toolbar, .tabs { padding-left: 16px; padding-right: 16px; }
-  #admin-view { padding: 16px; }
-  .login-card { padding: 28px 24px; }
+@media (max-width:640px) {
+  #topbar, .toolbar, .tabs { padding-left:16px; padding-right:16px; }
+  #admin-view { padding:16px; }
+  .login-card { padding:28px 24px; }
 }
 </style>
 </head>
@@ -222,25 +164,33 @@ textarea.ai-input { resize: vertical; min-height: 50px; }
 
 <script>
 // ═══════════════════════════════════════════════════════════
-//  ⚙️  CONFIG — fill these in before deploying
+//  ⚙️  CONFIG — paste your credentials here
 // ═══════════════════════════════════════════════════════════
 const CONFIG = {
-  // 1. OAuth Client ID from console.cloud.google.com
-  CLIENT_ID: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
+  CLIENT_ID:      'Y1036340686197-cbsamma1t9fcvjt1jcg9271qo85noqjr.apps.googleusercontent.com',
+  API_KEY:        '1fB4YWM4a5u56CXJw56fd5oxyl0Tu-7suyHs-sC4fEGs',
+  SPREADSHEET_ID: '1fB4YWM4a5u56CXJw56fd5oxyl0Tu-7suyHs-sC4fEGs',
+  SHEET_NAME:     'AI Overhaul (1-2 Apr)',
 
-  // 2. Spreadsheet ID from your Google Sheet URL
-  SPREADSHEET_ID: 'YOUR_SPREADSHEET_ID',
-
-  // 3. Sheet tab names
-  SHEET_NAME:         'Ideas',       // your main ideas tab
-  VOTES_SHEET:        'Votes',       // new tab: columns IdeaRow, Email
-  VOLUNTEERS_SHEET:   'Volunteers',  // new tab: columns IdeaRow, Email, Role
-
-  // 4. API Key (restricted to Sheets API)
-  API_KEY: 'YOUR_API_KEY',
-
-  // 5. Restrict to your company domain(s) — leave empty [] for any Google account
-  ALLOWED_DOMAINS: [],
+  // Column indices (0-based). A=0, B=1, … O=14
+  COL: {
+    SN: 0, 
+    DOMAIN: 1, 
+    BAU: 2, 
+    IDEA: 3, 
+    PROBLEM: 4,
+    RC: 5, 
+    TODO: 6, 
+    PLATFORM: 7, 
+    HOURS: 8,
+    HOURS_EXP: 9, 
+    INPUT_BY: 10, 
+    ADVOCATES: 11,
+    VOTES: 12,   // M
+    DEV: 13,     // N
+    TESTER: 14,  // O
+  },
+  ALLOWED_DOMAINS: ['shopee.com'],
 };
 // ═══════════════════════════════════════════════════════════
 
@@ -259,93 +209,76 @@ const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 
 let state = {
   user: null, tokenClient: null, accessToken: null,
-  ideas: [], votes: {}, volunteers: {},
-  loading: false, tab: 'board',
+  ideas: [], loading: false, tab: 'board',
   filter: { search: '', domain: '', platform: '' },
 };
-
 const groupState = {};
 let addRowVisible = false;
 
-// ── Helpers ──
-function toast(msg, type = 'success') {
+function toast(msg, type='success') {
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+  el.textContent = (type==='success' ? '✓ ' : '✕ ') + msg;
   document.getElementById('toast-container').appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
 
 function isConfigured() {
-  return !CONFIG.CLIENT_ID.includes('YOUR_') &&
-         !CONFIG.SPREADSHEET_ID.includes('YOUR_') &&
-         !CONFIG.API_KEY.includes('YOUR_');
+  return !CONFIG.CLIENT_ID.includes('YOUR_') && !CONFIG.API_KEY.includes('YOUR_');
 }
 
-// ── Render ──
+function parseEmails(str) {
+  return (str||'').split(',').map(s=>s.trim()).filter(Boolean);
+}
+
+function colLetter(idx) {
+  return String.fromCharCode(65 + idx);
+}
+
 function render() {
   const app = document.getElementById('app');
   if (!isConfigured()) { app.innerHTML = renderSetup(); return; }
   if (!state.user)     { app.innerHTML = renderLogin(); initGoogleAuth(); return; }
   app.innerHTML = renderApp();
-  bindEvents();
 }
 
-// ── Setup Screen ──
 function renderSetup() {
-  return `
-  <div id="setup-screen">
-    <div class="setup-card">
-      <h2>⚙️ Setup Required</h2>
-      <p>Fill in the CONFIG values at the top of this file, then redeploy.</p>
-      <div class="step-list">
-        <div class="step"><div class="step-num">1</div><div class="step-body">
-          <strong>Google Cloud Project</strong>
-          <p>Go to <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent)">console.cloud.google.com</a> → New Project → Enable <strong>Google Sheets API</strong>.</p>
-        </div></div>
-        <div class="step"><div class="step-num">2</div><div class="step-body">
-          <strong>OAuth Client ID</strong>
-          <p>Credentials → Create → OAuth Client ID → Web Application. Add your site URL to Authorized JavaScript Origins. Paste into <code>CONFIG.CLIENT_ID</code>.</p>
-        </div></div>
-        <div class="step"><div class="step-num">3</div><div class="step-body">
-          <strong>API Key</strong>
-          <p>Credentials → Create API Key → restrict to Sheets API. Paste into <code>CONFIG.API_KEY</code>.</p>
-        </div></div>
-        <div class="step"><div class="step-num">4</div><div class="step-body">
-          <strong>Prepare Google Sheet</strong>
-          <p>Keep your existing <code>Ideas</code> tab. Add two new tabs: <code>Votes</code> (columns: IdeaRow, Email) and <code>Volunteers</code> (columns: IdeaRow, Email, Role). Paste the Sheet ID into <code>CONFIG.SPREADSHEET_ID</code>.</p>
-        </div></div>
-        <div class="step"><div class="step-num">5</div><div class="step-body">
-          <strong>Share & Deploy</strong>
-          <p>Share the Sheet with your team. Push this file as <code>index.html</code> to GitHub Pages.</p>
-        </div></div>
-      </div>
+  return `<div id="setup-screen"><div class="setup-card">
+    <h2>⚙️ Setup Required</h2>
+    <p>Paste your <code>CLIENT_ID</code> and <code>API_KEY</code> into the CONFIG block at the top of this file, then push to GitHub Pages.</p>
+    <div class="step-list">
+      <div class="step"><div class="step-num">1</div><div class="step-body">
+        <strong>OAuth Client ID</strong>
+        <p>console.cloud.google.com → Credentials → Create → OAuth Client ID → Web Application. Add <code>https://lianasaat.github.io</code> to Authorized JavaScript Origins.</p>
+      </div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body">
+        <strong>API Key</strong>
+        <p>Credentials → Create API Key → restrict to Sheets API + <code>https://lianasaat.github.io/*</code>.</p>
+      </div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body">
+        <strong>Google Sheet columns</strong>
+        <p>In row 1 of your sheet, add headers in columns M, N, O: <code>Votes</code>, <code>Dev</code>, <code>Tester</code>. Share the sheet with your team.</p>
+      </div></div>
     </div>
-  </div>`;
+  </div></div>`;
 }
 
-// ── Login Screen ──
 function renderLogin() {
-  return `
-  <div id="login-screen">
-    <div class="login-card">
-      <div class="login-icon">⚡</div>
-      <div class="login-title">AI <span>Sprint</span></div>
-      <div class="login-sub">BI Team · Ideas Board<br>Sign in to submit ideas, vote, and volunteer.</div>
-      <div id="google-signin-btn"></div>
-    </div>
-  </div>`;
+  return `<div id="login-screen"><div class="login-card">
+    <div style="font-size:2rem;">⚡</div>
+    <div class="login-title">AI <span>Sprint</span></div>
+    <div class="login-sub">BI Team · Ideas Board<br>Sign in to submit ideas, vote, and volunteer.</div>
+    <div id="google-signin-btn"></div>
+  </div></div>`;
 }
 
-// ── Main App ──
 function renderApp() {
   const u = state.user;
   const avatarHtml = u.picture
-    ? `<img class="avatar" src="${u.picture}" referrerpolicy="no-referrer" />`
+    ? `<img class="avatar" src="${u.picture}" referrerpolicy="no-referrer">`
     : `<div class="avatar-placeholder">${(u.name||'?').charAt(0)}</div>`;
-
-  const domains = [...new Set(state.ideas.map(i => i.domain).filter(Boolean))];
-  const platforms = [...new Set(state.ideas.map(i => i.platform).filter(Boolean))];
+  const domains   = [...new Set(state.ideas.map(i=>i.domain).filter(Boolean))];
+  const platforms = [...new Set(state.ideas.map(i=>i.platform).filter(Boolean))];
 
   return `
   <div id="topbar">
@@ -358,7 +291,7 @@ function renderApp() {
     </div>
     <div class="topbar-right">
       <div class="live-pill"><div class="live-dot"></div> Live</div>
-      <span class="user-email">${u.email}</span>
+      <span style="font-size:12px;color:var(--muted);">${u.email}</span>
       ${avatarHtml}
       <button class="btn btn-ghost btn-sm" onclick="signOut()">Sign Out</button>
     </div>
@@ -369,12 +302,11 @@ function renderApp() {
     <button class="tab ${state.tab==='admin'?'active':''}" onclick="switchTab('admin')">📊 Admin Summary</button>
   </div>
 
-  ${state.tab === 'board' ? `
-  <div id="board-view">
+  <div id="board-view" style="display:${state.tab==='board'?'block':'none'}">
     <div class="toolbar">
       <div class="search-wrap">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#8892C4" stroke-width="1.5"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="#8892C4" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <input id="search-in" placeholder="Search ideas…" value="${state.filter.search}" oninput="updateFilter('search',this.value)" />
+        <input id="search-in" placeholder="Search ideas…" value="${state.filter.search}" oninput="updateFilter('search',this.value)">
       </div>
       <select class="filter-select" onchange="updateFilter('domain',this.value)">
         <option value="">All Domains</option>
@@ -386,26 +318,29 @@ function renderApp() {
       </select>
       <button class="btn btn-primary" onclick="toggleAddRow()">+ Add Idea</button>
     </div>
-
-    ${state.loading ? '<div class="spinner"></div>' : renderTable(domains, platforms)}
-  </div>` : ''}
+    ${state.loading ? '<div class="spinner"></div>' : renderTable()}
+  </div>
 
   <div id="admin-view" style="display:${state.tab==='admin'?'block':'none'}">
     ${state.loading ? '<div class="spinner"></div>' : renderAdmin()}
   </div>`;
 }
 
-// ── Table ──
 function renderTable() {
-  const q = state.filter.search.toLowerCase();
+  const q  = state.filter.search.toLowerCase();
   const fd = state.filter.domain, fp = state.filter.platform;
   const filtered = state.ideas.filter(i =>
-    (!q || i.idea.toLowerCase().includes(q) || i.problem.toLowerCase().includes(q) || i.domain.toLowerCase().includes(q) || i.platform.toLowerCase().includes(q)) &&
-    (!fd || i.domain === fd) && (!fp || i.platform === fp)
+    (!q  || i.idea.toLowerCase().includes(q) || i.problem.toLowerCase().includes(q) ||
+            i.domain.toLowerCase().includes(q) || i.platform.toLowerCase().includes(q)) &&
+    (!fd || i.domain===fd) && (!fp || i.platform===fp)
   );
 
   const groups = {};
-  filtered.forEach(i => { const k = i.rc||'Uncategorised'; if(!groups[k]) groups[k]=[]; groups[k].push(i); });
+  filtered.forEach(i => {
+    const k = i.rcCode || 'Uncategorised';
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(i);
+  });
 
   let rows = '';
   Object.keys(groups).sort().forEach(rc => {
@@ -428,72 +363,45 @@ function renderTable() {
     </td></tr>`;
 
     group.forEach(idea => {
-      const ri = state.ideas.indexOf(idea);
-      const myVotes = state.votes[idea.rowIndex] || [];
-      const voted = myVotes.includes(state.user.email);
-      const vols = state.volunteers[idea.rowIndex] || { dev:[], tester:[] };
-      const amDev = vols.dev.includes(state.user.email);
-      const amTester = vols.tester.includes(state.user.email);
+      const ri      = state.ideas.indexOf(idea);
+      const voted   = idea.votes.includes(state.user.email);
+      const amDev   = idea.dev.includes(state.user.email);
+      const amTest  = idea.tester.includes(state.user.email);
 
-      rows += `<tr class="drow${open?'':' hidden'}" data-group="${rc}">
-        <td style="color:var(--muted);font-size:12px;">${idea.sn||ri+1}</td>
-        <td style="max-width:220px;"><div class="idea-text">${idea.idea||''}</div></td>
-        <td style="max-width:180px;"><div class="prob-text">${idea.problem||''}</div></td>
-        <td><span class="pill pill-domain">${idea.domain||''}</span></td>
-        <td><span class="pill pill-platform">${idea.platform||''}</span></td>
-        <td style="text-align:center;"><span class="hrs-val">${idea.hours||''}</span></td>
-        <td><span class="by-text">${idea.submittedBy||''}</span></td>
+      rows += `<tr class="drow${open?'':' hidden'}">
+        <td style="color:var(--muted);font-size:12px;">${idea.sn}</td>
+        <td style="max-width:220px;"><div class="idea-text">${idea.idea}</div></td>
+        <td style="max-width:180px;"><div class="prob-text">${idea.problem}</div></td>
+        <td><span class="pill pill-domain">${idea.domain}</span></td>
+        <td><span class="pill pill-platform">${idea.platform}</span></td>
+        <td style="text-align:center;"><span class="hrs-val">${idea.hours}</span></td>
+        <td><span class="by-text">${idea.inputBy}</span></td>
         <td>
           <div class="chips">
-            ${vols.dev.map(e => e===state.user.email
-              ? `<span class="chip chip-me" onclick="unvolunteer(${ri},'dev')" title="Click to remove yourself">You (Dev)</span>`
-              : `<span class="chip">${e.split('@')[0]} (Dev)</span>`).join('')}
-            ${vols.tester.map(e => e===state.user.email
-              ? `<span class="chip chip-me" onclick="unvolunteer(${ri},'tester')" title="Click to remove yourself">You (Test)</span>`
-              : `<span class="chip">${e.split('@')[0]} (Test)</span>`).join('')}
-            ${!amDev?`<button class="vol-btn" onclick="volunteer(${ri},'dev')">+ Dev</button>`:''}
-            ${!amTester?`<button class="vol-btn" onclick="volunteer(${ri},'tester')">+ Test</button>`:''}
+            ${idea.dev.map(e=>e===state.user.email
+              ?`<span class="chip chip-me" onclick="unvolunteer(${ri},'dev')" title="Click to remove">You (Dev)</span>`
+              :`<span class="chip">${e.split('@')[0]} (Dev)</span>`).join('')}
+            ${idea.tester.map(e=>e===state.user.email
+              ?`<span class="chip chip-me" onclick="unvolunteer(${ri},'tester')" title="Click to remove">You (Test)</span>`
+              :`<span class="chip">${e.split('@')[0]} (Test)</span>`).join('')}
+            ${!amDev  ?`<button class="vol-btn" onclick="volunteer(${ri},'dev')">+ Dev</button>`:''}
+            ${!amTest ?`<button class="vol-btn" onclick="volunteer(${ri},'tester')">+ Test</button>`:''}
           </div>
-          ${amDev||amTester?`<div class="chip-hint">Click your name to remove</div>`:''}
+          ${amDev||amTest?`<div class="chip-hint">Click your name to remove</div>`:''}
         </td>
         <td style="text-align:center;">
-          <button class="vote-btn ${voted?'voted':''}" onclick="toggleVote(${ri})">👍 ${myVotes.length}</button>
+          <button class="vote-btn ${voted?'voted':''}" onclick="toggleVote(${ri})">👍 ${idea.votes.length}</button>
         </td>
       </tr>`;
     });
   });
 
-  const addRow = addRowVisible ? renderAddRow() : '';
-
-  return `
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:28px">#</th>
-          <th style="min-width:200px">Idea: What to Automate</th>
-          <th style="min-width:160px">Problem</th>
-          <th>Domain</th>
-          <th>Platform</th>
-          <th style="text-align:center">Hr / Wk</th>
-          <th>Submitted By</th>
-          <th style="min-width:130px">Dev / Tester</th>
-          <th style="text-align:center">Votes</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-      <tbody>${addRow}</tbody>
-    </table>
-  </div>`;
-}
-
-function renderAddRow() {
   const rcOpts = Object.entries(RC_LABELS).map(([k,v])=>`<option value="${k}">${k} – ${v}</option>`).join('');
-  return `<tr class="add-row">
+  const addRow = addRowVisible ? `<tr class="add-row">
     <td style="color:var(--muted);font-size:12px;">—</td>
     <td><textarea class="ai-input" id="ai-idea" placeholder="Describe what to automate…"></textarea></td>
     <td><textarea class="ai-input" id="ai-problem" placeholder="What pain point does this solve?"></textarea></td>
-    <td><input class="ai-input" id="ai-domain" placeholder="Domain" list="dl"><datalist id="dl"><option>GSheet</option><option>SMART</option><option>Data Studio</option><option>Seatalk</option></datalist></td>
+    <td><input class="ai-input" id="ai-domain" placeholder="Domain" list="dl"><datalist id="dl"><option>GSheet</option><option>SMART</option><option>DIANA</option><option>Data Studio</option><option>Seatalk</option></datalist></td>
     <td><input class="ai-input" id="ai-platform" placeholder="Platform" list="pl"><datalist id="pl"><option>Claude</option><option>Diana v2.0</option><option>Seatalk bot</option></datalist></td>
     <td><input class="ai-input" id="ai-hours" type="number" placeholder="0" min="0" step="0.5" style="width:54px;"></td>
     <td style="font-size:12px;color:var(--muted);">${state.user?.email?.split('@')[0]||''}</td>
@@ -502,24 +410,37 @@ function renderAddRow() {
       <button class="btn btn-primary btn-sm" onclick="submitIdea()">Submit</button>
       <button class="btn btn-ghost btn-sm" style="margin-left:4px;" onclick="toggleAddRow()">Cancel</button>
     </td>
-  </tr>`;
+  </tr>` : '';
+
+  return `<div class="table-wrap"><table>
+    <thead><tr>
+      <th style="width:28px">#</th>
+      <th style="min-width:200px">Idea: What to Automate</th>
+      <th style="min-width:160px">Problem</th>
+      <th>Domain</th>
+      <th>Platform</th>
+      <th style="text-align:center">Hr / Wk</th>
+      <th>Submitted By</th>
+      <th style="min-width:130px">Dev / Tester</th>
+      <th style="text-align:center">Votes</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+    <tbody>${addRow}</tbody>
+  </table></div>`;
 }
 
-// ── Admin ──
 function renderAdmin() {
-  const total = state.ideas.length;
+  const total      = state.ideas.length;
   const totalHours = state.ideas.reduce((s,i)=>s+(parseFloat(i.hours)||0),0);
-  const totalVotes = Object.values(state.votes).reduce((s,v)=>s+v.length,0);
-  const withVols = Object.keys(state.volunteers).filter(k => {
-    const v = state.volunteers[k];
-    return v.dev.length || v.tester.length;
-  }).length;
-
+  const totalVotes = state.ideas.reduce((s,i)=>s+i.votes.length,0);
+  const withVols   = state.ideas.filter(i=>i.dev.length||i.tester.length).length;
   const dc={}, pc={};
-  state.ideas.forEach(i=>{ if(i.domain) dc[i.domain]=(dc[i.domain]||0)+1; if(i.platform) pc[i.platform]=(pc[i.platform]||0)+1; });
+  state.ideas.forEach(i=>{
+    if(i.domain)   dc[i.domain]  =(dc[i.domain]  ||0)+1;
+    if(i.platform) pc[i.platform]=(pc[i.platform]||0)+1;
+  });
   const maxD=Math.max(...Object.values(dc),1), maxP=Math.max(...Object.values(pc),1);
-
-  const top = [...state.ideas].sort((a,b)=>(state.votes[b.rowIndex]?.length||0)-(state.votes[a.rowIndex]?.length||0)).slice(0,5);
+  const top=[...state.ideas].sort((a,b)=>b.votes.length-a.votes.length).slice(0,5);
 
   return `
   <div class="stat-grid">
@@ -531,34 +452,31 @@ function renderAdmin() {
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:22px;">
     <div>
       <div class="sec-title">By Domain</div>
-      <div class="bar-list">
-        ${Object.entries(dc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+      <div class="bar-list">${Object.entries(dc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
         <div class="bar-row"><div class="bar-lbl">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxD*100)}%"></div></div><div class="bar-val">${v}</div></div>`).join('')}
       </div>
     </div>
     <div>
       <div class="sec-title">By Platform</div>
-      <div class="bar-list">
-        ${Object.entries(pc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+      <div class="bar-list">${Object.entries(pc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
         <div class="bar-row"><div class="bar-lbl">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxP*100)}%"></div></div><div class="bar-val">${v}</div></div>`).join('')}
       </div>
     </div>
   </div>
   <div class="sec-title">Top Voted Ideas</div>
-  <div class="top-list">
-    ${top.map((idea,i)=>`
+  <div class="top-list">${top.map((idea,i)=>`
     <div class="top-item">
       <div class="top-rank">${RANKS[i]}</div>
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:500;color:var(--text)">${(idea.idea||'').substring(0,65)}${(idea.idea||'').length>65?'…':''}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${idea.domain||''} · ${idea.platform||''}</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${idea.idea.substring(0,65)}${idea.idea.length>65?'…':''}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${idea.domain} · ${idea.platform}</div>
       </div>
-      <div class="top-votes">👍 ${state.votes[idea.rowIndex]?.length||0}</div>
+      <div class="top-votes">👍 ${idea.votes.length}</div>
     </div>`).join('')}
   </div>`;
 }
 
-// ── Google Auth ──
+// ── Auth ──
 function initGoogleAuth() {
   if (!window.google) { setTimeout(initGoogleAuth, 300); return; }
   google.accounts.id.initialize({ client_id: CONFIG.CLIENT_ID, callback: handleCredential, auto_select: false });
@@ -594,23 +512,33 @@ async function getToken() {
 
 function signOut() {
   google.accounts.id.disableAutoSelect();
-  state.user = null; state.accessToken = null;
-  render();
+  state.user = null; state.accessToken = null; render();
 }
 
 function parseJwt(token) {
   return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
 }
 
-// ── Sheets API ──
+// ── Sheets ──
 async function sheetsGet(range) {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?key=${CONFIG.API_KEY}`;
   const r = await fetch(url, { headers: { Authorization: 'Bearer ' + await getToken() } });
-  return r.ok ? (await r.json()).values || [] : [];
+  if (!r.ok) throw new Error('Sheets read failed: ' + r.status);
+  return (await r.json()).values || [];
 }
 
-async function sheetsAppend(sheetName, values) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(sheetName)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+async function sheetsUpdate(range, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: { Authorization: 'Bearer ' + await getToken(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values }),
+  });
+  return r.ok;
+}
+
+async function sheetsAppend(range, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   const r = await fetch(url, {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + await getToken(), 'Content-Type': 'application/json' },
@@ -619,51 +547,31 @@ async function sheetsAppend(sheetName, values) {
   return r.ok;
 }
 
-async function sheetsDeleteRow(sheetName, rowIndex) {
-  const token = await getToken();
-  const rows = await sheetsGet(`${sheetName}!A:Z`);
-  rows.splice(rowIndex - 1, 1);
-  const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(sheetName+'!A:Z')}:clear`;
-  await fetch(clearUrl, { method:'POST', headers:{ Authorization:'Bearer '+token } });
-  if (rows.length) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(sheetName+'!A1')}?valueInputOption=USER_ENTERED`;
-    await fetch(url, { method:'PUT', headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json' }, body: JSON.stringify({ values: rows }) });
-  }
+async function updateCell(rowIndex, colIndex, value) {
+  const ref = `'${CONFIG.SHEET_NAME}'!${colLetter(colIndex)}${rowIndex}`;
+  return sheetsUpdate(ref, [[value]]);
 }
 
-// ── Load Data ──
+// ── Load ──
 async function loadData() {
   state.loading = true; render();
   try {
-    // Ideas: S/N | Domain | BAU | Idea | Problem | RC | ToDo | Platform | Hours | HoursExplain | InputBy | Advocates
-    const ideasRows = await sheetsGet(`${CONFIG.SHEET_NAME}!A:L`);
-    state.ideas = ideasRows.slice(1).map((row, i) => ({
+    const C = CONFIG.COL;
+    const rows = await sheetsGet(`'${CONFIG.SHEET_NAME}'!A:O`);
+    state.ideas = rows.slice(1).map((row, i) => ({
       rowIndex: i + 2,
-      sn: row[0]||'', domain: row[1]||'', bau: row[2]||'',
-      idea: row[3]||'', problem: row[4]||'', rc: (row[5]||'').split(/\s/)[0],
-      platform: row[7]||'', hours: row[8]||'', submittedBy: row[10]||'',
+      sn:       row[C.SN]       || String(i+1),
+      domain:   row[C.DOMAIN]   || '',
+      idea:     row[C.IDEA]     || '',
+      problem:  row[C.PROBLEM]  || '',
+      rcCode:   (row[C.RC]||'').match(/RC\d+/)?.[0] || 'Uncategorised',
+      platform: row[C.PLATFORM] || '',
+      hours:    row[C.HOURS]    || '',
+      inputBy:  row[C.INPUT_BY] || '',
+      votes:    parseEmails(row[C.VOTES]),
+      dev:      parseEmails(row[C.DEV]),
+      tester:   parseEmails(row[C.TESTER]),
     })).filter(i => i.idea);
-
-    // Votes: IdeaRow | Email
-    const voteRows = await sheetsGet(`${CONFIG.VOTES_SHEET}!A:B`);
-    state.votes = {};
-    voteRows.slice(1).forEach(row => {
-      const idx = parseInt(row[0]);
-      if (!isNaN(idx)) { if (!state.votes[idx]) state.votes[idx]=[]; if(row[1]) state.votes[idx].push(row[1]); }
-    });
-
-    // Volunteers: IdeaRow | Email | Role
-    const volRows = await sheetsGet(`${CONFIG.VOLUNTEERS_SHEET}!A:C`);
-    state.volunteers = {};
-    volRows.slice(1).forEach(row => {
-      const idx = parseInt(row[0]);
-      if (!isNaN(idx)) {
-        if (!state.volunteers[idx]) state.volunteers[idx] = { dev:[], tester:[] };
-        const role = (row[2]||'').toLowerCase();
-        if (row[1] && role==='dev') state.volunteers[idx].dev.push(row[1]);
-        if (row[1] && role==='tester') state.volunteers[idx].tester.push(row[1]);
-      }
-    });
   } catch(e) {
     toast('Error loading data: ' + e.message, 'error');
   }
@@ -672,84 +580,61 @@ async function loadData() {
 
 // ── Actions ──
 async function toggleVote(ri) {
-  const idea = state.ideas[ri];
+  const idea  = state.ideas[ri];
   const email = state.user.email;
-  const votes = state.votes[idea.rowIndex] || [];
-  const voted = votes.includes(email);
-
-  if (voted) {
-    const allRows = await sheetsGet(`${CONFIG.VOTES_SHEET}!A:B`);
-    const idx = allRows.findIndex(r => parseInt(r[0])===idea.rowIndex && r[1]===email);
-    if (idx >= 0) await sheetsDeleteRow(CONFIG.VOTES_SHEET, idx + 1);
-    state.votes[idea.rowIndex] = votes.filter(e => e !== email);
-  } else {
-    const ok = await sheetsAppend(CONFIG.VOTES_SHEET, [[idea.rowIndex, email]]);
-    if (ok) { if (!state.votes[idea.rowIndex]) state.votes[idea.rowIndex]=[]; state.votes[idea.rowIndex].push(email); }
-  }
-  render();
+  const votes = [...idea.votes];
+  const idx   = votes.indexOf(email);
+  if (idx >= 0) votes.splice(idx, 1); else votes.push(email);
+  const ok = await updateCell(idea.rowIndex, CONFIG.COL.VOTES, votes.join(', '));
+  if (ok) { idea.votes = votes; render(); }
+  else toast('Error saving vote', 'error');
 }
 
 async function volunteer(ri, role) {
-  const idea = state.ideas[ri];
+  const idea  = state.ideas[ri];
   const email = state.user.email;
-  const ok = await sheetsAppend(CONFIG.VOLUNTEERS_SHEET, [[idea.rowIndex, email, role]]);
-  if (ok) {
-    if (!state.volunteers[idea.rowIndex]) state.volunteers[idea.rowIndex] = { dev:[], tester:[] };
-    state.volunteers[idea.rowIndex][role].push(email);
-    toast(`Signed up as ${role}!`);
-    render();
-  } else {
-    toast('Error saving — check sheet permissions', 'error');
-  }
+  const col   = role==='dev' ? CONFIG.COL.DEV : CONFIG.COL.TESTER;
+  const list  = [...(role==='dev' ? idea.dev : idea.tester)];
+  if (list.includes(email)) return;
+  list.push(email);
+  const ok = await updateCell(idea.rowIndex, col, list.join(', '));
+  if (ok) { role==='dev' ? (idea.dev=list) : (idea.tester=list); toast(`Signed up as ${role}!`); render(); }
+  else toast('Error saving — check sheet permissions', 'error');
 }
 
 async function unvolunteer(ri, role) {
-  const idea = state.ideas[ri];
+  const idea  = state.ideas[ri];
   const email = state.user.email;
-  const allRows = await sheetsGet(`${CONFIG.VOLUNTEERS_SHEET}!A:C`);
-  const idx = allRows.findIndex(r => parseInt(r[0])===idea.rowIndex && r[1]===email && (r[2]||'').toLowerCase()===role);
-  if (idx >= 0) await sheetsDeleteRow(CONFIG.VOLUNTEERS_SHEET, idx + 1);
-  if (state.volunteers[idea.rowIndex]) state.volunteers[idea.rowIndex][role] = state.volunteers[idea.rowIndex][role].filter(e=>e!==email);
-  toast(`Removed from ${role}.`);
-  render();
+  const col   = role==='dev' ? CONFIG.COL.DEV : CONFIG.COL.TESTER;
+  const list  = (role==='dev' ? idea.dev : idea.tester).filter(e=>e!==email);
+  const ok = await updateCell(idea.rowIndex, col, list.join(', '));
+  if (ok) { role==='dev' ? (idea.dev=list) : (idea.tester=list); toast(`Removed from ${role}.`); render(); }
+  else toast('Error saving', 'error');
 }
 
 async function submitIdea() {
   const ideaEl = document.getElementById('ai-idea');
-  const idea = ideaEl?.value?.trim();
+  const idea   = ideaEl?.value?.trim();
   if (!idea) { ideaEl?.classList.add('err'); return; }
-
-  const row = [
-    state.ideas.length + 1,
-    document.getElementById('ai-domain')?.value?.trim()||'',
-    '',
-    idea,
-    document.getElementById('ai-problem')?.value?.trim()||'',
-    document.getElementById('ai-rc')?.value||'',
-    '',
-    document.getElementById('ai-platform')?.value?.trim()||'',
-    parseFloat(document.getElementById('ai-hours')?.value)||0,
-    '',
-    state.user.email,
-    '',
-  ];
-
-  const ok = await sheetsAppend(CONFIG.SHEET_NAME, [row]);
-  if (ok) {
-    toast('Idea submitted! Refreshing…');
-    addRowVisible = false;
-    await loadData();
-  } else {
-    toast('Error submitting — check sheet permissions', 'error');
-  }
+  const C   = CONFIG.COL;
+  const row = Array(15).fill('');
+  row[C.SN]       = state.ideas.length + 1;
+  row[C.DOMAIN]   = document.getElementById('ai-domain')?.value?.trim()   || '';
+  row[C.IDEA]     = idea;
+  row[C.PROBLEM]  = document.getElementById('ai-problem')?.value?.trim()  || '';
+  row[C.RC]       = document.getElementById('ai-rc')?.value               || '';
+  row[C.PLATFORM] = document.getElementById('ai-platform')?.value?.trim() || '';
+  row[C.HOURS]    = parseFloat(document.getElementById('ai-hours')?.value) || '';
+  row[C.INPUT_BY] = state.user.email;
+  const ok = await sheetsAppend(`'${CONFIG.SHEET_NAME}'!A:O`, [row]);
+  if (ok) { toast('Idea submitted! Refreshing…'); addRowVisible=false; await loadData(); }
+  else toast('Error submitting — check sheet permissions', 'error');
 }
 
-// ── UI Helpers ──
-function switchTab(tab) { state.tab = tab; render(); }
-function updateFilter(key, val) { state.filter[key] = val; render(); }
-function toggleGroup(rc) { groupState[rc] = !groupState[rc]; render(); }
-function toggleAddRow() { addRowVisible = !addRowVisible; render(); }
-function bindEvents() {}
+function switchTab(tab)         { state.tab=tab; render(); }
+function updateFilter(key, val) { state.filter[key]=val; render(); }
+function toggleGroup(rc)        { groupState[rc]=!groupState[rc]; render(); }
+function toggleAddRow()         { addRowVisible=!addRowVisible; render(); }
 
 render();
 </script>
