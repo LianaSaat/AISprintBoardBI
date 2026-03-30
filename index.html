@@ -6,6 +6,7 @@
 <title>AI Sprint · Ideas Board</title>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
 <style>
@@ -34,18 +35,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); font
 .login-title { font-size:1.5rem; font-weight:500; }
 .login-title span { color:var(--accent); }
 .login-sub { font-size:.9rem; color:var(--muted); line-height:1.6; }
-
-#setup-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:40px 20px; }
-.setup-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px 40px; max-width:520px; width:100%; box-shadow:0 4px 32px rgba(124,143,240,.1); }
-.setup-card h2 { font-size:1.3rem; font-weight:500; margin-bottom:6px; }
-.setup-card > p { color:var(--muted); font-size:.9rem; margin-bottom:24px; }
-.step-list { display:flex; flex-direction:column; gap:18px; }
-.step { display:flex; gap:14px; }
-.step-num { width:26px; height:26px; border-radius:50%; flex-shrink:0; background:var(--accent-light); border:1px solid var(--accent); color:var(--accent-text); font-size:.8rem; font-weight:500; display:flex; align-items:center; justify-content:center; }
-.step-body { font-size:.875rem; }
-.step-body strong { color:var(--text); }
-.step-body p { color:var(--muted); font-size:.82rem; margin-top:3px; }
-.step-body code { font-family:monospace; background:var(--accent-light); border-radius:4px; padding:1px 5px; font-size:.82rem; color:var(--accent-text); }
 
 #topbar { display:flex; align-items:center; justify-content:space-between; padding:13px 24px; background:var(--bg); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
 .logo-row { display:flex; align-items:center; gap:10px; }
@@ -164,15 +153,13 @@ textarea.ai-input { resize:vertical; min-height:50px; }
 
 <script>
 // ═══════════════════════════════════════════════════════════
-//  ⚙️  CONFIG — paste your credentials here
+//  ⚙️  CONFIG
 // ═══════════════════════════════════════════════════════════
 const CONFIG = {
   CLIENT_ID:      '1036340686197-cbsamma1t9fcvjt1jcg9271qo85noqjr.apps.googleusercontent.com',
-  API_KEY:        '1fB4YWM4a5u56CXJw56fd5oxyl0Tu-7suyHs-sC4fEGs',
   SPREADSHEET_ID: '1fB4YWM4a5u56CXJw56fd5oxyl0Tu-7suyHs-sC4fEGs',
   SHEET_NAME:     'AI Overhaul (1-2 Apr)',
 
-  // Column indices (0-based). A=0, B=1, … O=14
   COL: {
     SN: 0, 
     DOMAIN: 1, 
@@ -180,7 +167,7 @@ const CONFIG = {
     IDEA: 3, 
     PROBLEM: 4,
     RC: 5, 
-    TODO: 6, 
+    TODO: 6,
     PLATFORM: 7, 
     HOURS: 8,
     HOURS_EXP: 9, 
@@ -190,7 +177,9 @@ const CONFIG = {
     DEV: 13,     // N
     TESTER: 14,  // O
   },
-  ALLOWED_DOMAINS: ['shopee.com'],
+
+  // Lock to specific Google domain(s), e.g. ['shopee.com']. Empty = any Google account.
+  ALLOWED_DOMAINS: [],
 };
 // ═══════════════════════════════════════════════════════════
 
@@ -223,10 +212,6 @@ function toast(msg, type='success') {
   setTimeout(() => el.remove(), 3500);
 }
 
-function isConfigured() {
-  return !CONFIG.CLIENT_ID.includes('YOUR_') && !CONFIG.API_KEY.includes('YOUR_');
-}
-
 function parseEmails(str) {
   return (str||'').split(',').map(s=>s.trim()).filter(Boolean);
 }
@@ -235,32 +220,11 @@ function colLetter(idx) {
   return String.fromCharCode(65 + idx);
 }
 
+// ── Render ──
 function render() {
   const app = document.getElementById('app');
-  if (!isConfigured()) { app.innerHTML = renderSetup(); return; }
-  if (!state.user)     { app.innerHTML = renderLogin(); initGoogleAuth(); return; }
+  if (!state.user) { app.innerHTML = renderLogin(); initGoogleAuth(); return; }
   app.innerHTML = renderApp();
-}
-
-function renderSetup() {
-  return `<div id="setup-screen"><div class="setup-card">
-    <h2>⚙️ Setup Required</h2>
-    <p>Paste your <code>CLIENT_ID</code> and <code>API_KEY</code> into the CONFIG block at the top of this file, then push to GitHub Pages.</p>
-    <div class="step-list">
-      <div class="step"><div class="step-num">1</div><div class="step-body">
-        <strong>OAuth Client ID</strong>
-        <p>console.cloud.google.com → Credentials → Create → OAuth Client ID → Web Application. Add <code>https://lianasaat.github.io</code> to Authorized JavaScript Origins.</p>
-      </div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-body">
-        <strong>API Key</strong>
-        <p>Credentials → Create API Key → restrict to Sheets API + <code>https://lianasaat.github.io/*</code>.</p>
-      </div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-body">
-        <strong>Google Sheet columns</strong>
-        <p>In row 1 of your sheet, add headers in columns M, N, O: <code>Votes</code>, <code>Dev</code>, <code>Tester</code>. Share the sheet with your team.</p>
-      </div></div>
-    </div>
-  </div></div>`;
 }
 
 function renderLogin() {
@@ -363,10 +327,10 @@ function renderTable() {
     </td></tr>`;
 
     group.forEach(idea => {
-      const ri      = state.ideas.indexOf(idea);
-      const voted   = idea.votes.includes(state.user.email);
-      const amDev   = idea.dev.includes(state.user.email);
-      const amTest  = idea.tester.includes(state.user.email);
+      const ri     = state.ideas.indexOf(idea);
+      const voted  = idea.votes.includes(state.user.email);
+      const amDev  = idea.dev.includes(state.user.email);
+      const amTest = idea.tester.includes(state.user.email);
 
       rows += `<tr class="drow${open?'':' hidden'}">
         <td style="color:var(--muted);font-size:12px;">${idea.sn}</td>
@@ -479,8 +443,33 @@ function renderAdmin() {
 // ── Auth ──
 function initGoogleAuth() {
   if (!window.google) { setTimeout(initGoogleAuth, 300); return; }
-  google.accounts.id.initialize({ client_id: CONFIG.CLIENT_ID, callback: handleCredential, auto_select: false });
-  google.accounts.id.renderButton(document.getElementById('google-signin-btn'), { theme:'outline', size:'large', shape:'pill', text:'signin_with' });
+
+  google.accounts.id.initialize({
+    client_id: CONFIG.CLIENT_ID,
+    callback: handleCredential,
+    auto_select: false,
+  });
+
+  google.accounts.id.renderButton(
+    document.getElementById('google-signin-btn'),
+    { theme:'outline', size:'large', shape:'pill', text:'signin_with' }
+  );
+
+  // Also init the token client for Sheets API access
+  state.tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CONFIG.CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (!resp.error) {
+        state.accessToken = resp.access_token;
+        loadData();
+      } else {
+        toast('Could not get Sheets access. Make sure the sheet is shared with your account.', 'error');
+        state.loading = false;
+        render();
+      }
+    },
+  });
 }
 
 function handleCredential(response) {
@@ -489,41 +478,40 @@ function handleCredential(response) {
     toast('Access restricted to ' + CONFIG.ALLOWED_DOMAINS.join(', '), 'error'); return;
   }
   state.user = { name: payload.name, email: payload.email, picture: payload.picture };
-  initTokenClient();
+  state.loading = true;
   render();
-  loadData();
-}
-
-function initTokenClient() {
-  state.tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CONFIG.CLIENT_ID, scope: SCOPES,
-    callback: (resp) => { if (!resp.error) state.accessToken = resp.access_token; },
-  });
+  // Request OAuth token for Sheets access (may show a popup the first time)
   state.tokenClient.requestAccessToken({ prompt: '' });
 }
 
 async function getToken() {
   if (state.accessToken) return state.accessToken;
   return new Promise(resolve => {
-    state.tokenClient.callback = (resp) => { state.accessToken = resp.access_token; resolve(resp.access_token); };
+    state.tokenClient.callback = (resp) => {
+      if (!resp.error) { state.accessToken = resp.access_token; resolve(resp.access_token); }
+    };
     state.tokenClient.requestAccessToken({ prompt: '' });
   });
 }
 
 function signOut() {
   google.accounts.id.disableAutoSelect();
-  state.user = null; state.accessToken = null; render();
+  state.user = null; state.accessToken = null;
+  state.ideas = []; render();
 }
 
 function parseJwt(token) {
   return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
 }
 
-// ── Sheets ──
+// ── Sheets API (OAuth only — no API key) ──
 async function sheetsGet(range) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?key=${CONFIG.API_KEY}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}`;
   const r = await fetch(url, { headers: { Authorization: 'Bearer ' + await getToken() } });
-  if (!r.ok) throw new Error('Sheets read failed: ' + r.status);
+  if (!r.ok) {
+    const err = await r.json();
+    throw new Error(err.error?.message || 'Sheets read failed');
+  }
   return (await r.json()).values || [];
 }
 
@@ -573,7 +561,7 @@ async function loadData() {
       tester:   parseEmails(row[C.TESTER]),
     })).filter(i => i.idea);
   } catch(e) {
-    toast('Error loading data: ' + e.message, 'error');
+    toast('Error loading: ' + e.message, 'error');
   }
   state.loading = false; render();
 }
@@ -599,7 +587,7 @@ async function volunteer(ri, role) {
   list.push(email);
   const ok = await updateCell(idea.rowIndex, col, list.join(', '));
   if (ok) { role==='dev' ? (idea.dev=list) : (idea.tester=list); toast(`Signed up as ${role}!`); render(); }
-  else toast('Error saving — check sheet permissions', 'error');
+  else toast('Error saving — make sure the sheet is shared with your account as Editor', 'error');
 }
 
 async function unvolunteer(ri, role) {
@@ -628,7 +616,7 @@ async function submitIdea() {
   row[C.INPUT_BY] = state.user.email;
   const ok = await sheetsAppend(`'${CONFIG.SHEET_NAME}'!A:O`, [row]);
   if (ok) { toast('Idea submitted! Refreshing…'); addRowVisible=false; await loadData(); }
-  else toast('Error submitting — check sheet permissions', 'error');
+  else toast('Error submitting — make sure the sheet is shared with your account as Editor', 'error');
 }
 
 function switchTab(tab)         { state.tab=tab; render(); }
