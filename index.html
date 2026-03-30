@@ -92,6 +92,8 @@
     .vol-btn{font-size:11px;border-radius:20px;padding:2px 8px;border:1px dashed var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);}
     .vol-btn:hover{border-color:var(--green);color:var(--green-text);background:var(--green-light);}
     .chip-hint{font-size:10px;color:var(--muted);margin-top:3px;}
+    .chip-dev {background: #EEF0FF;color: #3D4BA8;border-color: #7C8FF0;}
+    .chip-tester {background: #E6F4EE;color: #2D6B55;border-color: #5BA88A;}
     .vote-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--font);}
     .vote-btn.voted{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500;}
     .add-row td{background:#F0F4FF;padding:9px 14px;border-bottom:1px solid var(--border);}
@@ -337,12 +339,19 @@
             <td style="text-align:center;"><span class="hrs-val">${escapeHtml(String(idea.hours))}</span></td>
             <td><span class="by-text">${escapeHtml(idea.inputBy)}</span></td>
             <td><div class="chips">
-              ${idea.dev.map(e => e===state.user.email
-                ? `<span class="chip chip-me" onclick="unvolunteer(${ri},'dev')">You (Dev)</span>`
-                : `<span class="chip">${escapeHtml(e.split('@')[0])} (Dev)</span>`).join('')}
-              ${idea.tester.map(e => e===state.user.email
-                ? `<span class="chip chip-me" onclick="unvolunteer(${ri},'tester')">You (Test)</span>`
-                : `<span class="chip">${escapeHtml(e.split('@')[0])} (Test)</span>`).join('')}
+              ${idea.dev.map(e =>
+                `<span class="chip chip-dev ${e===state.user.email?'chip-me':''}"
+                   title="${escapeHtml(e)}"
+                   onclick="${e===state.user.email?`unvolunteer(${ri},'dev')`:''}">
+                  🛠 ${escapeHtml(e.split('@')[0])}
+                </span>`).join('')}
+              
+              ${idea.tester.map(e =>
+                `<span class="chip chip-tester ${e===state.user.email?'chip-me':''}"
+                   title="${escapeHtml(e)}"
+                   onclick="${e===state.user.email?`unvolunteer(${ri},'tester')`:''}">
+                  🧪 ${escapeHtml(e.split('@')[0])}
+                </span>`).join('')}
               ${!amDev ? `<button class="vol-btn" onclick="volunteer(${ri},'dev')" ${pendingAction ? 'disabled' : ''}>+ Dev</button>` : ''}
               ${!amTest ? `<button class="vol-btn" onclick="volunteer(${ri},'tester')" ${pendingAction ? 'disabled' : ''}>+ Test</button>` : ''}
             </div>${amDev || amTest ? `<div class="chip-hint">Click your name to remove</div>` : ''}</td>
