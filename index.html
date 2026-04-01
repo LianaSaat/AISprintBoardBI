@@ -119,6 +119,20 @@
     .top-rank{font-size:17px;width:24px;text-align:center;}
     .top-votes{font-size:13px;font-weight:500;color:var(--accent);white-space:nowrap;}
 
+    .dev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:10px;}
+    .dev-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;}
+    .dev-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+    .dev-name{font-size:13px;font-weight:500;color:var(--text);}
+    .dev-meta{font-size:11px;color:var(--muted);}
+    .dev-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+    .mini-pill{font-size:11px;padding:4px 8px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--text2);}
+    .mini-pill.hours{background:var(--green-light);color:var(--green-text);border-color:#BFDCCF;}
+    .dev-ideas{display:flex;flex-direction:column;gap:7px;}
+    .dev-idea{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:#FAFBFF;}
+    .dev-idea-title{font-size:12px;font-weight:500;color:var(--text);line-height:1.4;}
+    .dev-idea-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+    .empty-state{font-size:12px;color:var(--muted);padding:10px 0;}
+
     #toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;}
     .toast{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:.875rem;box-shadow:0 4px 20px rgba(124,143,240,.15);display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;max-width:420px;}
     @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
@@ -175,7 +189,7 @@
       ideas: [],
       loading: false,
       tab: 'board',
-      filter: { search:'', domain:'', platform:'' },
+      filter: { search:'', domain:'', platform:'', dev:'' },
     };
 
     const groupState = {};
@@ -246,6 +260,7 @@
 
       const domains = [...new Set(state.ideas.map(i => i.domain).filter(Boolean))];
       const platforms = [...new Set(state.ideas.map(i => i.platform).filter(Boolean))];
+      const devs = [...new Set(state.ideas.flatMap(i => i.dev).filter(Boolean))];
 
       return `
         <div id="topbar">
@@ -284,6 +299,10 @@
               <option value="">All Platforms</option>
               ${platforms.map(p => `<option value="${escapeHtml(p)}" ${state.filter.platform===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
             </select>
+            <select class="filter-select" onchange="updateFilter('dev',this.value)">
+              <option value="">All Devs</option>
+              ${devs.map(d => `<option value="${escapeHtml(d)}" ${state.filter.dev===d?'selected':''}>${escapeHtml(d.split('@')[0])}</option>`).join('')}
+            </select>
             <button class="btn btn-primary" onclick="toggleAddRow()">+ Add Idea</button>
           </div>
           ${state.loading ? '<div class="spinner"></div>' : renderTable()}
@@ -298,11 +317,13 @@
       const q = state.filter.search.toLowerCase();
       const fd = state.filter.domain;
       const fp = state.filter.platform;
+      const fv = state.filter.dev;
 
       const filtered = state.ideas.filter(i =>
-        (!q || [i.idea, i.problem, i.domain, i.platform].some(v => (v || '').toLowerCase().includes(q))) &&
+        (!q || [i.idea, i.problem, i.domain, i.platform, ...i.dev].some(v => (v || '').toLowerCase().includes(q))) &&
         (!fd || i.domain === fd) &&
-        (!fp || i.platform === fp)
+        (!fp || i.platform === fp) &&
+        (!fv || i.dev.includes(fv))
       );
 
       const groups = {};
@@ -420,15 +441,44 @@
       const totalVotes = state.ideas.reduce((s, i) => s + i.votes.length, 0);
       const withVols = state.ideas.filter(i => i.dev.length || i.tester.length).length;
       const dc = {}, pc = {};
+      const devWork = {};
 
       state.ideas.forEach(i => {
         if (i.domain) dc[i.domain] = (dc[i.domain] || 0) + 1;
         if (i.platform) pc[i.platform] = (pc[i.platform] || 0) + 1;
+
+        i.dev.forEach(devEmail => {
+          if (!devWork[devEmail]) {
+            devWork[devEmail] = {
+              email: devEmail,
+              ideaCount: 0,
+              totalHours: 0,
+              ideas: []
+            };
+          }
+
+          devWork[devEmail].ideaCount += 1;
+          devWork[devEmail].totalHours += parseFloat(i.hours) || 0;
+          devWork[devEmail].ideas.push({
+            sn: i.sn,
+            idea: i.idea,
+            domain: i.domain,
+            platform: i.platform,
+            hours: parseFloat(i.hours) || 0
+          });
+        });
       });
 
       const maxD = Math.max(...Object.values(dc), 1);
       const maxP = Math.max(...Object.values(pc), 1);
       const top = [...state.ideas].sort((a, b) => b.votes.length - a.votes.length).slice(0, 5);
+
+      const devList = Object.values(devWork)
+        .sort((a, b) => {
+          if (b.ideaCount !== a.ideaCount) return b.ideaCount - a.ideaCount;
+          if (b.totalHours !== a.totalHours) return b.totalHours - a.totalHours;
+          return a.email.localeCompare(b.email);
+        });
 
       return `
         <div class="stat-grid">
@@ -458,7 +508,7 @@
         </div>
 
         <div class="sec-title">Top Voted Ideas</div>
-        <div class="top-list">
+        <div class="top-list" style="margin-bottom:22px;">
           ${top.map((idea, i) => `
             <div class="top-item">
               <div class="top-rank">${RANKS[i]}</div>
@@ -468,7 +518,39 @@
               </div>
               <div class="top-votes">👍 ${idea.votes.length}</div>
             </div>`).join('')}
-        </div>`;
+        </div>
+
+        <div class="sec-title">Dev Workload</div>
+        ${
+          devList.length
+            ? `<div class="dev-grid">
+                ${devList.map(dev => `
+                  <div class="dev-card">
+                    <div class="dev-head">
+                      <div>
+                        <div class="dev-name">🛠 ${escapeHtml(dev.email.split('@')[0])}</div>
+                        <div class="dev-meta">${escapeHtml(dev.email)}</div>
+                      </div>
+                    </div>
+                    <div class="dev-stats">
+                      <span class="mini-pill">${dev.ideaCount} idea${dev.ideaCount !== 1 ? 's' : ''}</span>
+                      <span class="mini-pill hours">${dev.totalHours} hr/wk</span>
+                    </div>
+                    <div class="dev-ideas">
+                      ${dev.ideas
+                        .sort((a,b) => b.hours - a.hours)
+                        .map(item => `
+                          <div class="dev-idea">
+                            <div class="dev-idea-title">#${escapeHtml(String(item.sn))} · ${escapeHtml(item.idea)}</div>
+                            <div class="dev-idea-meta">${escapeHtml(item.domain)} · ${escapeHtml(item.platform)} · ${escapeHtml(String(item.hours))} hr/wk</div>
+                          </div>
+                        `).join('')}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>`
+            : `<div class="empty-state">No dev assignments yet.</div>`
+        }`;
     }
 
     function initAuth() {
@@ -564,6 +646,7 @@
       state.ideas = [];
       state.loading = false;
       addRowVisible = false;
+      state.filter = { search:'', domain:'', platform:'', dev:'' };
       render();
     }
 
