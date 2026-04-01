@@ -652,7 +652,7 @@
           domain: row[C.DOMAIN] || '',
           idea: row[C.IDEA] || '',
           problem: row[C.PROBLEM] || '',
-          rcCode: (row[C.RC] || '').match(/RC\\d+/)?.[0] || 'Uncategorised',
+          rcCode: rcCode: (row[C.RC] || '').match(/RC\d+/)?.[0] || 'Uncategorised',
           platform: row[C.PLATFORM] || '',
           hours: row[C.HOURS] || '',
           inputBy: row[C.INPUT_BY] || '',
