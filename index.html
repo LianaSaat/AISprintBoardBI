@@ -61,7 +61,7 @@
     .filter-select{border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;background:var(--surface);color:var(--text2);cursor:pointer;outline:none;font-family:var(--font);}
 
     .table-wrap{overflow-x:auto;}
-    table{width:100%;border-collapse:collapse;font-size:13px;}
+    table.ideas-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
     thead tr{background:var(--bg);}
     th{padding:9px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.04em;border-bottom:1px solid var(--border);white-space:nowrap;}
     .group-header td{padding:0;border-bottom:none;}
@@ -80,10 +80,10 @@
     .pill{font-size:11px;padding:3px 9px;border-radius:20px;display:inline-block;white-space:nowrap;font-weight:500;border:1px solid var(--border);}
     .pill-domain{background:var(--accent-light);color:var(--accent-text);}
     .pill-platform{background:var(--green-light);color:var(--green-text);}
-    .idea-text{font-size:13px;line-height:1.45;color:var(--text);}
-    .prob-text{font-size:12px;color:var(--muted);line-height:1.4;}
+    .idea-text{font-size:13px;line-height:1.45;color:var(--text);word-wrap:break-word;overflow-wrap:anywhere;}
+    .prob-text{font-size:12px;color:var(--muted);line-height:1.4;word-wrap:break-word;overflow-wrap:anywhere;}
     .hrs-val{font-size:12px;font-weight:500;color:var(--green);}
-    .by-text{font-size:12px;color:var(--muted);white-space:nowrap;}
+    .by-text{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
     .chips{display:flex;flex-wrap:wrap;gap:4px;}
     .chip{font-size:11px;border-radius:20px;padding:2px 8px;white-space:nowrap;background:var(--bg);border:1px solid var(--border);color:var(--muted);}
     .chip-me{background:var(--accent-light);border-color:var(--accent);color:var(--accent-text);cursor:pointer;}
@@ -92,8 +92,8 @@
     .vol-btn{font-size:11px;border-radius:20px;padding:2px 8px;border:1px dashed var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);}
     .vol-btn:hover{border-color:var(--green);color:var(--green-text);background:var(--green-light);}
     .chip-hint{font-size:10px;color:var(--muted);margin-top:3px;}
-    .chip-dev {background: #EEF0FF;color: #3D4BA8;border-color: #7C8FF0;}
-    .chip-tester {background: #E6F4EE;color: #2D6B55;border-color: #5BA88A;}
+    .chip-dev {background:#EEF0FF;color:#3D4BA8;border-color:#7C8FF0;}
+    .chip-tester {background:#E6F4EE;color:#2D6B55;border-color:#5BA88A;}
     .vote-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--font);}
     .vote-btn.voted{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500;}
     .add-row td{background:#F0F4FF;padding:9px 14px;border-bottom:1px solid var(--border);}
@@ -137,21 +137,21 @@
       CLIENT_ID: '1036340686197-cbsamma1t9fcvjt1jcg9271qo85noqjr.apps.googleusercontent.com',
       SPREADSHEET_ID: '1fB4YWM4a5u56CXJw56fd5oxyl0Tu-7suyHs-sC4fEGs',
       SHEET_NAME: 'AI Overhaul (1-2 Apr)',
-      ALLOWED_DOMAINS: [],
+      ALLOWED_DOMAINS: ["shopee.com"],
       COL: {
-        SN:0, 
-        DOMAIN:1, 
-        BAU:2, 
-        IDEA:3, 
+        SN:0,
+        DOMAIN:1,
+        BAU:2,
+        IDEA:3,
         PROBLEM:4,
-        RC:5, 
-        TODO:6, 
-        PLATFORM:7, 
+        RC:5,
+        TODO:6,
+        PLATFORM:7,
         HOURS:8,
-        HOURS_EXP:9, 
-        INPUT_BY:10, 
+        HOURS_EXP:9,
+        INPUT_BY:10,
         VOTES:11,
-        DEV:12, 
+        DEV:12,
         TESTER:13,
       },
     };
@@ -337,8 +337,8 @@
 
           rows += `<tr class="drow${open ? '' : ' hidden'}">
             <td style="color:var(--muted);font-size:12px;">${escapeHtml(String(idea.sn))}</td>
-            <td style="max-width:220px;"><div class="idea-text">${escapeHtml(idea.idea)}</div></td>
-            <td style="max-width:180px;"><div class="prob-text">${escapeHtml(idea.problem)}</div></td>
+            <td><div class="idea-text">${escapeHtml(idea.idea)}</div></td>
+            <td><div class="prob-text">${escapeHtml(idea.problem)}</div></td>
             <td><span class="pill pill-domain">${escapeHtml(idea.domain)}</span></td>
             <td><span class="pill pill-platform">${escapeHtml(idea.platform)}</span></td>
             <td style="text-align:center;"><span class="hrs-val">${escapeHtml(String(idea.hours))}</span></td>
@@ -350,7 +350,7 @@
                    onclick="${e===state.user.email?`unvolunteer(${ri},'dev')`:''}">
                   🛠 ${escapeHtml(e.split('@')[0])}
                 </span>`).join('')}
-              
+
               ${idea.tester.map(e =>
                 `<span class="chip chip-tester ${e===state.user.email?'chip-me':''}"
                    title="${escapeHtml(e)}"
@@ -386,16 +386,27 @@
         </td>
       </tr>` : '';
 
-      return `<div class="table-wrap"><table>
+      return `<div class="table-wrap"><table class="ideas-table">
+        <colgroup>
+          <col style="width:56px;">
+          <col style="width:360px;">
+          <col style="width:200px;">
+          <col style="width:100px;">
+          <col style="width:100px;">
+          <col style="width:80px;">
+          <col style="width:120px;">
+          <col style="width:160px;">
+          <col style="width:72px;">
+        </colgroup>
         <thead><tr>
-          <th style="width:28px">#</th>
-          <th style="min-width:200px">Idea: What to Automate</th>
-          <th style="min-width:160px">Problem</th>
+          <th>#</th>
+          <th>Idea: What to Automate</th>
+          <th>Problem</th>
           <th>Domain</th>
           <th>Platform</th>
           <th style="text-align:center">Hr / Wk</th>
           <th>Submitted By</th>
-          <th style="min-width:130px">Dev / Tester</th>
+          <th>Dev / Tester</th>
           <th style="text-align:center">Votes</th>
         </tr></thead>
         <tbody>${rows || '<tr><td colspan="9" style="text-align:center;color:var(--muted);">No ideas found.</td></tr>'}</tbody>
