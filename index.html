@@ -137,7 +137,7 @@
       CLIENT_ID: '1036340686197-cbsamma1t9fcvjt1jcg9271qo85noqjr.apps.googleusercontent.com',
       SPREADSHEET_ID: '1fB4YWM4a5u56CXJw56fd5oxyl0Tu-7suyHs-sC4fEGs',
       SHEET_NAME: 'AI Overhaul (1-2 Apr)',
-      ALLOWED_DOMAINS: ['shopee.com'],
+      ALLOWED_DOMAINS: [],
       COL: {
         SN:0,
         DOMAIN:1,
@@ -175,7 +175,7 @@
       ideas: [],
       loading: false,
       tab: 'board',
-      filter: { search:'', domain:'', platform:'', dev:'' },
+      filter: { search:'', domain:'', platform:'' },
     };
 
     const groupState = {};
@@ -246,7 +246,6 @@
 
       const domains = [...new Set(state.ideas.map(i => i.domain).filter(Boolean))];
       const platforms = [...new Set(state.ideas.map(i => i.platform).filter(Boolean))];
-      const devs = [...new Set(state.ideas.flatMap(i => i.dev).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
       return `
         <div id="topbar">
@@ -285,10 +284,6 @@
               <option value="">All Platforms</option>
               ${platforms.map(p => `<option value="${escapeHtml(p)}" ${state.filter.platform===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
             </select>
-            <select class="filter-select" onchange="updateFilter('dev',this.value)">
-              <option value="">All Devs</option>
-              ${devs.map(d => `<option value="${escapeHtml(d)}" ${state.filter.dev===d?'selected':''}>${escapeHtml(d.split('@')[0])}</option>`).join('')}
-            </select>
             <button class="btn btn-primary" onclick="toggleAddRow()">+ Add Idea</button>
           </div>
           ${state.loading ? '<div class="spinner"></div>' : renderTable()}
@@ -303,13 +298,11 @@
       const q = state.filter.search.toLowerCase();
       const fd = state.filter.domain;
       const fp = state.filter.platform;
-      const fdev = state.filter.dev;
 
       const filtered = state.ideas.filter(i =>
-        (!q || [i.idea, i.problem, i.domain, i.platform, i.inputBy, ...i.dev].some(v => (v || '').toLowerCase().includes(q))) &&
+        (!q || [i.idea, i.problem, i.domain, i.platform].some(v => (v || '').toLowerCase().includes(q))) &&
         (!fd || i.domain === fd) &&
-        (!fp || i.platform === fp) &&
-        (!fdev || i.dev.includes(fdev))
+        (!fp || i.platform === fp)
       );
 
       const groups = {};
@@ -416,10 +409,8 @@
           <th>Dev / Tester</th>
           <th style="text-align:center">Votes</th>
         </tr></thead>
-        <tbody>
-          ${addRow}
-          ${rows || '<tr><td colspan="9" style="text-align:center;color:var(--muted);">No ideas found.</td></tr>'}
-        </tbody>
+        <tbody>${rows || '<tr><td colspan="9" style="text-align:center;color:var(--muted);">No ideas found.</td></tr>'}</tbody>
+        <tbody>${addRow}</tbody>
       </table></div>`;
     }
 
@@ -652,7 +643,7 @@
           domain: row[C.DOMAIN] || '',
           idea: row[C.IDEA] || '',
           problem: row[C.PROBLEM] || '',
-          rcCode: rcCode: (row[C.RC] || '').match(/RC\d+/)?.[0] || 'Uncategorised',
+          rcCode: (row[C.RC] || '').match(/RC\d+/)?.[0] || 'Uncategorised',
           platform: row[C.PLATFORM] || '',
           hours: row[C.HOURS] || '',
           inputBy: row[C.INPUT_BY] || '',
